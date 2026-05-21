@@ -60,17 +60,17 @@ fi
 
 # 2. Copy JSON into the repo's data/ folder
 echo "[2/3] Copying registry into repo…"
-mkdir -p "$REPO_DIR/data"
-cp "$REGISTRY_JSON" "$REPO_DIR/data/datasets.json"
-echo "  Copied → $REPO_DIR/data/datasets.json"
+mkdir -p "$REPO_DIR/docs/data"
+cp "$REGISTRY_JSON" "$REPO_DIR/docs/data/datasets.json"
+echo "  Copied → $REPO_DIR/docs/data/datasets.json"
 
 # 3. Git commit and push
 echo "[3/3] Committing and pushing…"
 cd "$REPO_DIR"
 
-if ! git diff --quiet data/datasets.json; then
+if ! git diff --quiet docs/data/datasets.json; then
   TIMESTAMP=$(date -u "+%Y-%m-%d %H:%M UTC")
-  git add data/datasets.json
+  git add docs/data/datasets.json
   git commit -m "chore: update dataset registry [$TIMESTAMP]"
   git push
   echo ""
