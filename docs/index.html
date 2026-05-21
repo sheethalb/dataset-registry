@@ -163,6 +163,38 @@
   }
   .empty-state h3 { font-size: 1.1rem; margin-bottom: 6px; color: var(--text); }
 
+  /* ---- Help modal ---- */
+  .modal-backdrop {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,.7);
+    z-index: 100; align-items: center; justify-content: center;
+  }
+  .modal-backdrop.open { display: flex; }
+  .modal {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+    padding: 28px 32px; max-width: 620px; width: 90%; max-height: 85vh; overflow-y: auto;
+    position: relative;
+  }
+  .modal h2 { font-size: 1.1rem; margin-bottom: 6px; color: var(--accent2); }
+  .modal h3 { font-size: 0.88rem; color: var(--text); margin: 18px 0 6px; }
+  .modal p, .modal li { font-size: 0.82rem; color: var(--muted); line-height: 1.6; }
+  .modal ol { padding-left: 18px; }
+  .modal code, .modal pre {
+    font-family: "SFMono-Regular", Consolas, monospace;
+    background: var(--bg); border-radius: 5px; font-size: 0.78rem;
+  }
+  .modal code { padding: 1px 5px; color: #a5f3fc; }
+  .modal pre { padding: 12px 14px; overflow-x: auto; color: #d1fae5; margin: 8px 0; white-space: pre; }
+  .modal-close {
+    position: absolute; top: 14px; right: 16px;
+    background: none; border: none; color: var(--muted); font-size: 1.2rem; cursor: pointer;
+  }
+  .modal-close:hover { color: var(--text); }
+  .help-btn {
+    padding: 6px 14px; border-radius: 8px; font-size: 0.8rem; cursor: pointer;
+    border: 1px solid var(--border); background: var(--tag-bg); color: var(--muted);
+  }
+  .help-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+
   /* ---- Footer ---- */
   footer {
     text-align: center; padding: 24px; font-size: 0.78rem; color: var(--muted);
@@ -190,7 +222,58 @@
     <span><strong id="stat-size">—</strong><br>Total storage</span>
     <span><strong id="stat-missing">—</strong><br>Need author info</span>
   </div>
+  <button class="help-btn" onclick="document.getElementById('help-modal').classList.add('open')">
+    ✏️ How to add your dataset info
+  </button>
 </header>
+
+<!-- Help modal -->
+<div class="modal-backdrop" id="help-modal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal">
+    <button class="modal-close" onclick="document.getElementById('help-modal').classList.remove('open')">✕</button>
+    <h2>How to add or update your dataset's metadata</h2>
+    <p>If your dataset card shows a <strong style="color:#f59e0b">⚠ Needs info</strong> badge,
+    the scanner couldn't auto-detect some fields. Fill them in with a simple YAML file.</p>
+
+    <h3>Step 1 — Create <code>dataset_info.yaml</code> in your dataset folder</h3>
+    <p>Copy the template below into your dataset folder on the HPC:</p>
+    <pre>cp /home/woody/iwi5/iwi5145h/Databases/dataset-registry/templates/dataset_info.yaml \
+    /home/janus/iwi5-datasets/YOUR_DATASET_NAME/dataset_info.yaml</pre>
+
+    <h3>Step 2 — Fill in the fields</h3>
+    <pre>nano /home/janus/iwi5-datasets/YOUR_DATASET_NAME/dataset_info.yaml</pre>
+    <p>Replace every <code>???</code> with the correct value. Example:</p>
+    <pre>name: MIMIC-CXR
+description: Chest X-ray dataset with radiology reports from BIDMC.
+modality: 2D
+domain: medical_imaging
+tasks:
+  - classification
+  - report_generation
+annotations:
+  - radiology_reports
+  - class_labels
+classes: null
+num_samples: 227827
+preprocessing: DICOM converted to de-identified PNG
+citation: |
+  Johnson et al. MIMIC-CXR-JPG, a large publicly available database
+  of labeled chest radiographs. arXiv:1901.07042
+is_public: false
+license: PhysioNet Credentialed</pre>
+
+    <h3>Step 3 — Ask the registry owner to rescan</h3>
+    <p>Once your file is saved, ask <strong>sheethal.bhat@gmail.com</strong> to run:</p>
+    <pre>bash /home/woody/iwi5/iwi5145h/Databases/dataset-registry/sync.sh</pre>
+    <p>Your dataset card will update on this dashboard within a few minutes.</p>
+
+    <h3>Available field values</h3>
+    <p><strong>modality:</strong> <code>2D</code> · <code>3D</code> · <code>text</code> · <code>audio</code> · <code>video</code> · <code>multimodal</code></p>
+    <p><strong>domain:</strong> <code>medical_imaging</code> · <code>art</code> · <code>natural_images</code> · <code>remote_sensing</code> · <code>text</code> · <code>olfactory</code> · <code>other</code></p>
+    <p><strong>tasks:</strong> <code>classification</code> · <code>segmentation</code> · <code>detection</code> · <code>retrieval</code> · <code>generation</code> · <code>report_generation</code> · <code>depth_estimation</code> · <code>pose_estimation</code> · <code>reconstruction</code></p>
+    <p><strong>annotations:</strong> <code>class_labels</code> · <code>segmentation_masks</code> · <code>bounding_boxes</code> · <code>captions</code> · <code>keypoints</code> · <code>depth_maps</code> · <code>radiology_reports</code> · <code>point_clouds</code> · <code>none</code></p>
+  </div>
+</div>
 
 <div class="controls">
   <!-- Search -->
