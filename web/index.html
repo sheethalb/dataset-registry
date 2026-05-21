@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>PR Lab Dataset Registry</title>
+<style>
+  :root {
+    --bg:       #0f1117;
+    --surface:  #1a1d27;
+    --border:   #2a2d3e;
+    --accent:   #6366f1;
+    --accent2:  #a78bfa;
+    --text:     #e2e8f0;
+    --muted:    #64748b;
+    --warning:  #f59e0b;
+    --success:  #10b981;
+    --danger:   #ef4444;
+    --tag-bg:   #1e2235;
+    --hover:    #22263a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--bg); color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ---- Header ---- */
+  header {
+    padding: 24px 32px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 16px;
+    background: var(--surface);
+  }
+  header h1 { font-size: 1.4rem; font-weight: 700; color: var(--accent2); }
+  header .subtitle { font-size: 0.85rem; color: var(--muted); margin-top: 2px; }
+  .stats-bar {
+    margin-left: auto; display: flex; gap: 24px; font-size: 0.82rem; color: var(--muted);
+  }
+  .stats-bar span strong { color: var(--text); font-size: 1.1rem; }
+
+  /* ---- Controls ---- */
+  .controls {
+    padding: 16px 32px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start;
+  }
+  .search-wrap { position: relative; flex: 1; min-width: 220px; max-width: 360px; }
+  .search-wrap input {
+    width: 100%; padding: 8px 12px 8px 36px;
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text); font-size: 0.9rem;
+    outline: none;
+  }
+  .search-wrap input:focus { border-color: var(--accent); }
+  .search-wrap svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--muted); }
+
+  .filter-group { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .filter-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-right: 2px; }
+
+  .chip {
+    padding: 5px 12px; border-radius: 20px; font-size: 0.78rem; cursor: pointer;
+    border: 1px solid var(--border); background: var(--tag-bg); color: var(--muted);
+    transition: all .15s; user-select: none;
+  }
+  .chip:hover { border-color: var(--accent); color: var(--text); }
+  .chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  .sort-select {
+    padding: 6px 10px; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text); font-size: 0.82rem; cursor: pointer; outline: none;
+  }
+
+  /* ---- Grid ---- */
+  .grid-container { padding: 24px 32px; }
+  .results-count { font-size: 0.82rem; color: var(--muted); margin-bottom: 14px; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 16px;
+  }
+
+  /* ---- Card ---- */
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 18px 20px;
+    cursor: pointer; transition: border-color .15s, background .15s;
+    position: relative;
+  }
+  .card:hover { border-color: var(--accent); background: var(--hover); }
+  .card.expanded { border-color: var(--accent2); }
+
+  .card-header { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+  .card-icon {
+    width: 38px; height: 38px; border-radius: 8px; background: var(--tag-bg);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem; flex-shrink: 0;
+  }
+  .card-title { font-size: 1rem; font-weight: 600; color: var(--text); line-height: 1.3; }
+  .card-owner { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+
+  .card-badges { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
+  .badge {
+    padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 600;
+    letter-spacing: .02em; text-transform: uppercase;
+  }
+  .badge-2d      { background: #1a3a5c; color: #60a5fa; }
+  .badge-3d      { background: #2a1a5c; color: #a78bfa; }
+  .badge-public  { background: #0f3a25; color: #6ee7b7; }
+  .badge-private { background: #3a1a1a; color: #fca5a5; }
+  .badge-unknown { background: #2a2820; color: #fbbf24; }
+  .badge-missing { background: #3a2a10; color: #fbbf24; }
+
+  .card-desc {
+    font-size: 0.82rem; color: var(--muted); line-height: 1.5;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .card.expanded .card-desc { -webkit-line-clamp: unset; overflow: visible; }
+
+  .card-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+  .tag {
+    padding: 2px 8px; border-radius: 4px; font-size: 0.72rem;
+    background: var(--tag-bg); color: var(--muted); border: 1px solid var(--border);
+  }
+
+  .card-footer {
+    margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 0.75rem; color: var(--muted);
+  }
+
+  /* ---- Expanded details ---- */
+  .card-details { margin-top: 14px; display: none; }
+  .card.expanded .card-details { display: block; }
+
+  .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 20px; margin-bottom: 12px; }
+  .detail-item {}
+  .detail-key { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 2px; }
+  .detail-val { font-size: 0.82rem; color: var(--text); }
+
+  .missing-notice {
+    background: #2a200a; border: 1px solid #78350f; border-radius: 6px;
+    padding: 8px 12px; font-size: 0.78rem; color: var(--warning); margin-top: 10px;
+  }
+  .missing-notice strong { display: block; margin-bottom: 2px; }
+
+  .expand-toggle {
+    position: absolute; top: 14px; right: 14px;
+    font-size: 0.7rem; color: var(--muted); background: none; border: none; cursor: pointer;
+    padding: 2px 6px; border-radius: 4px;
+  }
+  .expand-toggle:hover { color: var(--text); background: var(--border); }
+
+  a.ext-link { color: var(--accent2); text-decoration: none; font-size: 0.78rem; }
+  a.ext-link:hover { text-decoration: underline; }
+
+  /* ---- Empty state ---- */
+  .empty-state {
+    text-align: center; padding: 80px 20px; color: var(--muted);
+  }
+  .empty-state h3 { font-size: 1.1rem; margin-bottom: 6px; color: var(--text); }
+
+  /* ---- Footer ---- */
+  footer {
+    text-align: center; padding: 24px; font-size: 0.78rem; color: var(--muted);
+    border-top: 1px solid var(--border);
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    header, .controls, .grid-container { padding-left: 16px; padding-right: 16px; }
+    .stats-bar { display: none; }
+    .grid { grid-template-columns: 1fr; }
+    .detail-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>PR Lab — Dataset Registry</h1>
+    <div class="subtitle" id="generated-at">Loading…</div>
+  </div>
+  <div class="stats-bar">
+    <span><strong id="stat-total">—</strong><br>Total datasets</span>
+    <span><strong id="stat-size">—</strong><br>Total storage</span>
+    <span><strong id="stat-missing">—</strong><br>Need author info</span>
+  </div>
+</header>
+
+<div class="controls">
+  <!-- Search -->
+  <div class="search-wrap">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+    </svg>
+    <input id="search" type="text" placeholder="Search datasets…" oninput="applyFilters()"/>
+  </div>
+
+  <!-- Modality -->
+  <div class="filter-group">
+    <span class="filter-label">Modality</span>
+    <span class="chip active" data-filter="modality" data-value="all" onclick="toggleChip(this)">All</span>
+    <span class="chip" data-filter="modality" data-value="2D"  onclick="toggleChip(this)">2D</span>
+    <span class="chip" data-filter="modality" data-value="3D"  onclick="toggleChip(this)">3D</span>
+  </div>
+
+  <!-- Visibility -->
+  <div class="filter-group">
+    <span class="filter-label">Access</span>
+    <span class="chip active" data-filter="access" data-value="all"     onclick="toggleChip(this)">All</span>
+    <span class="chip" data-filter="access" data-value="public"  onclick="toggleChip(this)">Public</span>
+    <span class="chip" data-filter="access" data-value="private" onclick="toggleChip(this)">Private</span>
+  </div>
+
+  <!-- Domain -->
+  <div class="filter-group">
+    <span class="filter-label">Domain</span>
+    <span class="chip active" data-filter="domain" data-value="all"             onclick="toggleChip(this)">All</span>
+    <span class="chip" data-filter="domain" data-value="medical_imaging"  onclick="toggleChip(this)">Medical</span>
+    <span class="chip" data-filter="domain" data-value="art"              onclick="toggleChip(this)">Art</span>
+    <span class="chip" data-filter="domain" data-value="natural_images"   onclick="toggleChip(this)">Natural</span>
+    <span class="chip" data-filter="domain" data-value="text"             onclick="toggleChip(this)">Text</span>
+  </div>
+
+  <!-- Task -->
+  <div class="filter-group">
+    <span class="filter-label">Task</span>
+    <span class="chip active" data-filter="task" data-value="all"               onclick="toggleChip(this)">All</span>
+    <span class="chip" data-filter="task" data-value="segmentation"      onclick="toggleChip(this)">Segmentation</span>
+    <span class="chip" data-filter="task" data-value="classification"    onclick="toggleChip(this)">Classification</span>
+    <span class="chip" data-filter="task" data-value="detection"         onclick="toggleChip(this)">Detection</span>
+    <span class="chip" data-filter="task" data-value="retrieval"         onclick="toggleChip(this)">Retrieval</span>
+    <span class="chip" data-filter="task" data-value="generation"        onclick="toggleChip(this)">Generation</span>
+    <span class="chip" data-filter="task" data-value="report_generation" onclick="toggleChip(this)">Reports</span>
+  </div>
+
+  <!-- Sort -->
+  <div class="filter-group" style="margin-left:auto">
+    <span class="filter-label">Sort</span>
+    <select class="sort-select" id="sort-select" onchange="applyFilters()">
+      <option value="name">Name A→Z</option>
+      <option value="size_desc">Size ↓</option>
+      <option value="size_asc">Size ↑</option>
+      <option value="date_desc">Newest first</option>
+      <option value="date_asc">Oldest first</option>
+      <option value="missing">Needs info first</option>
+    </select>
+  </div>
+</div>
+
+<div class="grid-container">
+  <div class="results-count" id="results-count"></div>
+  <div class="grid" id="grid"></div>
+  <div class="empty-state" id="empty-state" style="display:none">
+    <h3>No datasets match your filters</h3>
+    <p>Try clearing some filters or broadening your search.</p>
+  </div>
+</div>
+
+<footer>
+  Dataset Registry — PR Lab &nbsp;·&nbsp; Data source: <code>datasets.json</code>
+  &nbsp;·&nbsp; To update: run <code>scanner.py</code> and push
+</footer>
+
+<script>
+const DATA_URL = "data/datasets.json";   // relative to this HTML file in the repo
+
+let allDatasets = [];
+let activeFilters = { modality: "all", access: "all", domain: "all", task: "all" };
+
+const DOMAIN_ICONS = {
+  medical_imaging: "🏥",
+  art:             "🎨",
+  natural_images:  "🖼️",
+  remote_sensing:  "🛰️",
+  text:            "📄",
+  audio:           "🎵",
+  video:           "🎞️",
+  multimodal:      "🔀",
+  olfactory:       "👃",
+  unknown:         "📦",
+};
+
+function domainIcon(d) { return DOMAIN_ICONS[d] || "📦"; }
+
+function fmtSize(gb) {
+  if (gb == null || gb === 0) return "unknown";
+  if (gb < 1) return `${Math.round(gb * 1024)} MB`;
+  if (gb < 1024) return `${gb} GB`;
+  return `${(gb / 1024).toFixed(1)} TB`;
+}
+
+function fmtList(arr) {
+  if (!arr || arr.length === 0) return "—";
+  return arr.join(", ");
+}
+
+function accessBadge(is_public) {
+  if (is_public === true)  return '<span class="badge badge-public">Public</span>';
+  if (is_public === false) return '<span class="badge badge-private">Private</span>';
+  return '<span class="badge badge-unknown">Access?</span>';
+}
+
+function modalityBadge(m) {
+  if (m === "2D") return '<span class="badge badge-2d">2D</span>';
+  if (m === "3D") return '<span class="badge badge-3d">3D</span>';
+  return '';
+}
+
+function missingBadge(fields) {
+  if (!fields || fields.length === 0) return '';
+  return `<span class="badge badge-missing" title="Missing: ${fields.join(', ')}">⚠ Needs info</span>`;
+}
+
+function renderCard(d) {
+  const tags = [
+    ...(d.tasks || []).map(t => `<span class="tag">${t}</span>`),
+    ...(d.annotations || []).map(a => `<span class="tag">${a}</span>`),
+    ...(d.domain && d.domain !== "unknown" ? [`<span class="tag">${d.domain}</span>`] : []),
+  ].join("");
+
+  const detailGrid = `
+    <div class="detail-grid">
+      <div class="detail-item"><div class="detail-key">Owner</div><div class="detail-val">${d.owner || "—"}</div></div>
+      <div class="detail-item"><div class="detail-key">Size</div><div class="detail-val">${fmtSize(d.size_gb)}</div></div>
+      <div class="detail-item"><div class="detail-key">Added</div><div class="detail-val">${d.added_date || "—"}</div></div>
+      <div class="detail-item"><div class="detail-key">Samples</div><div class="detail-val">${d.num_samples != null ? d.num_samples.toLocaleString() : "—"}</div></div>
+      <div class="detail-item"><div class="detail-key">License</div><div class="detail-val">${d.license || "—"}</div></div>
+      <div class="detail-item"><div class="detail-key">Preprocessing</div><div class="detail-val">${d.preprocessing || "none"}</div></div>
+      <div class="detail-item"><div class="detail-key">Classes</div><div class="detail-val">${fmtList(d.classes)}</div></div>
+      <div class="detail-item"><div class="detail-key">Path</div><div class="detail-val" style="font-size:0.7rem;word-break:break-all">${d.path || "—"}</div></div>
+    </div>
+    ${d.citation ? `<div class="detail-item" style="margin-bottom:8px"><div class="detail-key">Citation</div><div class="detail-val" style="font-size:0.78rem;white-space:pre-wrap">${d.citation}</div></div>` : ""}
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      ${d.pwc_url   ? `<a class="ext-link" href="${d.pwc_url}" target="_blank">📄 Papers with Code</a>` : ""}
+      ${d.hf_id     ? `<a class="ext-link" href="https://huggingface.co/datasets/${d.hf_id}" target="_blank">🤗 Hugging Face</a>` : ""}
+      ${d.paper_url ? `<a class="ext-link" href="${d.paper_url}" target="_blank">🔗 Paper</a>` : ""}
+    </div>
+    ${d.missing_fields && d.missing_fields.length > 0 ? `
+      <div class="missing-notice">
+        <strong>Author input needed</strong>
+        Add <code>dataset_info.yaml</code> to <code>${d.path}</code> with these fields:
+        ${d.missing_fields.join(", ")}
+      </div>` : ""}
+  `;
+
+  return `
+    <div class="card" id="card-${slugify(d.name)}" onclick="toggleCard(this)">
+      <button class="expand-toggle" onclick="event.stopPropagation();toggleCard(this.parentElement)">▼ details</button>
+      <div class="card-header">
+        <div class="card-icon">${domainIcon(d.domain)}</div>
+        <div>
+          <div class="card-title">${d.name}</div>
+          <div class="card-owner">${d.owner || ""} &nbsp;·&nbsp; ${fmtSize(d.size_gb)}</div>
+        </div>
+      </div>
+      <div class="card-badges">
+        ${modalityBadge(d.modality)}
+        ${accessBadge(d.is_public)}
+        ${missingBadge(d.missing_fields)}
+      </div>
+      <div class="card-desc">${d.description || "<em style='color:var(--muted)'>No description yet.</em>"}</div>
+      <div class="card-tags">${tags}</div>
+      <div class="card-footer">
+        <span>${d.added_date ? "Added " + d.added_date : ""}</span>
+        <span style="color:var(--muted);font-size:0.7rem">${d.source === "yaml" ? "✓ verified" : "auto-detected"}</span>
+      </div>
+      <div class="card-details">${detailGrid}</div>
+    </div>
+  `;
+}
+
+function slugify(s) { return s.replace(/[^a-z0-9]/gi, "-").toLowerCase(); }
+
+function toggleCard(card) {
+  card.classList.toggle("expanded");
+  const btn = card.querySelector(".expand-toggle");
+  if (btn) btn.textContent = card.classList.contains("expanded") ? "▲ collapse" : "▼ details";
+}
+
+function toggleChip(el) {
+  const group = el.dataset.filter;
+  document.querySelectorAll(`.chip[data-filter="${group}"]`).forEach(c => c.classList.remove("active"));
+  el.classList.add("active");
+  activeFilters[group] = el.dataset.value;
+  applyFilters();
+}
+
+function applyFilters() {
+  const q = document.getElementById("search").value.toLowerCase().trim();
+  const sort = document.getElementById("sort-select").value;
+
+  let filtered = allDatasets.filter(d => {
+    // Search
+    if (q) {
+      const haystack = [d.name, d.description, d.owner, d.domain,
+                        ...(d.tasks || []), ...(d.annotations || []), ...(d.classes || [])]
+        .join(" ").toLowerCase();
+      if (!haystack.includes(q)) return false;
+    }
+    // Modality
+    if (activeFilters.modality !== "all" && d.modality !== activeFilters.modality) return false;
+    // Access
+    if (activeFilters.access === "public"  && d.is_public !== true)  return false;
+    if (activeFilters.access === "private" && d.is_public !== false) return false;
+    // Domain
+    if (activeFilters.domain !== "all" && d.domain !== activeFilters.domain) return false;
+    // Task
+    if (activeFilters.task !== "all") {
+      if (!d.tasks || !d.tasks.includes(activeFilters.task)) return false;
+    }
+    return true;
+  });
+
+  // Sort
+  filtered.sort((a, b) => {
+    if (sort === "name")      return a.name.localeCompare(b.name);
+    if (sort === "size_desc") return (b.size_gb || 0) - (a.size_gb || 0);
+    if (sort === "size_asc")  return (a.size_gb || 0) - (b.size_gb || 0);
+    if (sort === "date_desc") return (b.added_date || "").localeCompare(a.added_date || "");
+    if (sort === "date_asc")  return (a.added_date || "").localeCompare(b.added_date || "");
+    if (sort === "missing")   return ((b.missing_fields||[]).length) - ((a.missing_fields||[]).length);
+    return 0;
+  });
+
+  const grid = document.getElementById("grid");
+  const empty = document.getElementById("empty-state");
+  const count = document.getElementById("results-count");
+
+  if (filtered.length === 0) {
+    grid.innerHTML = "";
+    empty.style.display = "block";
+    count.textContent = "";
+  } else {
+    empty.style.display = "none";
+    grid.innerHTML = filtered.map(renderCard).join("");
+    count.textContent = `Showing ${filtered.length} of ${allDatasets.length} datasets`;
+  }
+}
+
+async function loadData() {
+  try {
+    const resp = await fetch(DATA_URL);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const reg = await resp.json();
+
+    allDatasets = reg.datasets || [];
+
+    // Stats
+    document.getElementById("stat-total").textContent = reg.total || allDatasets.length;
+    const totalGb = allDatasets.reduce((s, d) => s + (d.size_gb || 0), 0);
+    document.getElementById("stat-size").textContent = fmtSize(totalGb);
+    document.getElementById("stat-missing").textContent =
+      allDatasets.filter(d => d.missing_fields && d.missing_fields.length > 0).length;
+    document.getElementById("generated-at").textContent =
+      `Last scanned: ${reg.generated_at ? new Date(reg.generated_at).toLocaleDateString() : "unknown"}`
+      + `  ·  Root: ${reg.datasets_root || ""}`;
+
+    applyFilters();
+  } catch (e) {
+    document.getElementById("grid").innerHTML =
+      `<div style="color:var(--danger);padding:40px;grid-column:1/-1">
+        Failed to load datasets.json: ${e.message}<br>
+        <small>Make sure the file is at <code>data/datasets.json</code> relative to this page.</small>
+       </div>`;
+  }
+}
+
+loadData();
+</script>
+</body>
+</html>

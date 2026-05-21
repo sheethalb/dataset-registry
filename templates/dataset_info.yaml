@@ -1,0 +1,59 @@
+# ============================================================
+#  Dataset Information Template
+#  Copy this file to your dataset folder as dataset_info.yaml
+#  and fill in all fields marked with ???
+#  Then re-run: python scanner.py  (from the dataset-registry folder)
+# ============================================================
+
+# Short human-readable name (can differ from folder name)
+name: ???
+
+# 1–3 sentence description of what this dataset contains and why it was collected
+description: ???
+
+# Image/volume type
+modality: ???   # 2D | 3D | text | audio | video | multimodal
+
+# Domain / topic area
+domain: ???     # medical_imaging | art | natural_images | remote_sensing | text | olfactory | other
+
+# What tasks this dataset supports (list one or more)
+tasks:
+  - ???
+  # Options: classification, segmentation, detection, retrieval,
+  #          generation, report_generation, depth_estimation,
+  #          pose_estimation, reconstruction, registration, captioning
+
+# What kinds of annotations are provided (list one or more)
+annotations:
+  - ???
+  # Options: class_labels, segmentation_masks, bounding_boxes,
+  #          captions, keypoints, depth_maps, radiology_reports,
+  #          point_clouds, none
+
+# List of class names (or null if not applicable)
+classes:
+  - ???
+
+# Approximate total number of samples/images/volumes
+num_samples: ???
+
+# Describe any preprocessing already applied (e.g. "DICOM to PNG, skull-stripped")
+# Write "none" if the data is raw
+preprocessing: none
+
+# Full citation (BibTeX, paper title + authors, or DOI link)
+citation: |
+  ???
+
+# Is this dataset freely downloadable without a login or data use agreement?
+is_public: ???   # true | false
+
+# License name (e.g. MIT, CC-BY-4.0, CC-BY-NC, PhysioNet Credentialed, Non-Commercial)
+license: ???
+
+# Optional: link to the paper or project page
+paper_url: ???
+
+# Optional: link to original download source
+source_url: ???
