@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-21T21:00:28.488021+00:00",
+  "generated_at": "2026-05-21T21:11:57.398626+00:00",
   "datasets_root": "/home/janus/iwi5-datasets",
   "total": 18,
   "datasets": [
@@ -8,69 +8,65 @@
       "path": "/home/janus/iwi5-datasets/ADNI_MRI_T1",
       "owner": "iwi5359h",
       "size_gb": 47.66,
-      "added_date": "2026-03-10",
+      "added_date": "2026-05-21",
       "modality": "unknown",
       "domain": "medical_imaging",
-      "tasks": [],
-      "annotations": [],
-      "classes": null,
-      "num_samples": null,
-      "preprocessing": "",
-      "description": "",
-      "citation": "",
-      "is_public": null,
+      "tasks": [
+        "???"
+      ],
+      "annotations": [
+        "???"
+      ],
+      "classes": [
+        "???"
+      ],
+      "num_samples": "???",
+      "preprocessing": "none",
+      "description": "???",
+      "citation": "???\n",
+      "is_public": "???",
       "license": "unknown",
       "pwc_url": null,
       "hf_id": null,
-      "source": "auto",
+      "source": "yaml",
       "last_updated": "2026-05-21",
-      "missing_fields": [
-        "description",
-        "citation",
-        "classes",
-        "tasks",
-        "annotations",
-        "is_public",
-        "preprocessing"
-      ]
+      "missing_fields": []
     },
     {
       "name": "AnyScript",
       "path": "/home/janus/iwi5-datasets/AnyScript",
       "owner": "iwi5193h",
       "size_gb": 740.38,
-      "added_date": "2026-02-23",
+      "added_date": "2026-05-21",
       "modality": "unknown",
       "domain": "text",
-      "tasks": [],
-      "annotations": [],
-      "classes": null,
-      "num_samples": null,
-      "preprocessing": "",
-      "description": "",
-      "citation": "",
-      "is_public": null,
+      "tasks": [
+        "???"
+      ],
+      "annotations": [
+        "???"
+      ],
+      "classes": [
+        "???"
+      ],
+      "num_samples": "???",
+      "preprocessing": "none",
+      "description": "???",
+      "citation": "???\n",
+      "is_public": "???",
       "license": "unknown",
       "pwc_url": null,
       "hf_id": null,
-      "source": "auto",
+      "source": "yaml",
       "last_updated": "2026-05-21",
-      "missing_fields": [
-        "description",
-        "citation",
-        "classes",
-        "tasks",
-        "annotations",
-        "is_public",
-        "preprocessing"
-      ]
+      "missing_fields": []
     },
     {
       "name": "Herculaneum",
       "path": "/home/janus/iwi5-datasets/Herculaneum",
       "owner": "iwi5193h",
       "size_gb": 1990.3,
-      "added_date": "2026-02-26",
+      "added_date": "2026-05-21",
       "modality": "2D",
       "domain": "art",
       "tasks": [
@@ -81,24 +77,20 @@
         "segmentation_masks",
         "class_labels"
       ],
-      "classes": null,
+      "classes": [
+        "???"
+      ],
       "num_samples": 4520,
-      "preprocessing": "",
-      "description": "",
-      "citation": "",
-      "is_public": null,
+      "preprocessing": "none",
+      "description": "???",
+      "citation": "???\n",
+      "is_public": "???",
       "license": "unknown",
       "pwc_url": null,
       "hf_id": null,
-      "source": "auto",
+      "source": "yaml",
       "last_updated": "2026-05-21",
-      "missing_fields": [
-        "description",
-        "citation",
-        "classes",
-        "is_public",
-        "preprocessing"
-      ]
+      "missing_fields": []
     },
     {
       "name": "MIMIC",
@@ -229,7 +221,7 @@
       "path": "/home/janus/iwi5-datasets/ReXGradient-160K",
       "owner": "iwi5284h",
       "size_gb": 0.62,
-      "added_date": "2025-11-24",
+      "added_date": "2026-05-21",
       "modality": "unknown",
       "domain": "medical_imaging",
       "tasks": [
@@ -384,7 +376,7 @@
       "path": "/home/janus/iwi5-datasets/imagenet",
       "owner": "iwi5090h",
       "size_gb": 160.19,
-      "added_date": "2025-05-13",
+      "added_date": "2026-05-21",
       "modality": "unknown",
       "domain": "natural_images",
       "tasks": [
